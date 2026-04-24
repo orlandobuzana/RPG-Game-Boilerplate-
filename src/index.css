@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-bg-main: #0A0A0C;
+  --color-bg-panel: #0D0D0F;
+  --color-bg-world: #121214;
+  --color-bg-header: #161618;
+  --color-border-subtle: #27272A;
+  --color-border-strong: #3F3F46;
+  --color-label: #71717A;
+  --color-text-dim: #A1A1AA;
+}
