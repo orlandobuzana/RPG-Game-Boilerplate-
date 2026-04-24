@@ -22,6 +22,44 @@ export class GameEngine {
 
   actionLog: string[] = ["[16:00] System initialized", "[16:01] Welcome to Astra"];
 
+  saveGame() {
+    const saveData = {
+      player: {
+        name: this.entities.player.name,
+        gender: this.entities.player.gender,
+        level: this.entities.player.level,
+        experience: this.entities.player.experience,
+        maxExperience: this.entities.player.maxExperience,
+        inventory: this.entities.player.inventory,
+        equippedWeapon: this.entities.player.equippedWeapon,
+        health: this.entities.player.health,
+        stamina: this.entities.player.stamina,
+        position: this.entities.player.position,
+      },
+      currentPlanet: this.currentPlanet,
+      discoveredPlanets: this.discoveredPlanets,
+    };
+    localStorage.setItem('astra_save_01', JSON.stringify(saveData));
+    this.log("Auto-save completed.");
+  }
+
+  loadGame() {
+    const raw = localStorage.getItem('astra_save_01');
+    if (!raw) return false;
+    try {
+      const data = JSON.parse(raw);
+      Object.assign(this.entities.player, data.player);
+      this.currentPlanet = data.currentPlanet;
+      this.discoveredPlanets = data.discoveredPlanets;
+      this.state = GameState.PLAYING;
+      this.log(`Welcome back, ${this.entities.player.name}.`);
+      return true;
+    } catch (e) {
+      console.error("Failed to load save", e);
+      return false;
+    }
+  }
+
   constructor() {
     this.world = new WorldManager();
     this.entities = new EntityManager();
@@ -44,6 +82,11 @@ export class GameEngine {
       this.world.update(dt);
       this.entities.update(dt, this.inputs, this.world, this);
       
+      // Auto-save every 30 seconds (roughly 1800 frames)
+      if (Math.random() > 0.9995) {
+        this.saveGame();
+      }
+
       // Interaction checks
       if (this.inputs.e) {
           const tile = this.world.getTile(this.entities.player.position.x, this.entities.player.position.y);

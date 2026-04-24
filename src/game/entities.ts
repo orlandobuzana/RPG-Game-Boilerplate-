@@ -110,7 +110,7 @@ export class EntityManager {
         }
       }
 
-      const attackRange = 65;
+      const attackRange = 75;
       const damage = 10 + (this.player.level * 3) + weaponBonus;
       
       this.enemies.forEach(enemy => {
@@ -119,7 +119,7 @@ export class EntityManager {
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < attackRange) {
               enemy.health -= damage;
-              const kb = 35;
+              const kb = 45;
               enemy.position.x += (dx / dist) * kb;
               enemy.position.y += (dy / dist) * kb;
               

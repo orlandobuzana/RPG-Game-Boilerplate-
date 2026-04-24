@@ -59,10 +59,52 @@ function renderOverworld(ctx: CanvasRenderingContext2D, engine: GameEngine) {
   });
 
   // Render Player
-  ctx.fillStyle = '#3b82f6';
+  ctx.save();
+  ctx.translate(player.position.x, player.position.y);
+  
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
   ctx.beginPath();
-  ctx.arc(player.position.x, player.position.y, 12, 0, Math.PI * 2);
+  ctx.ellipse(0, 6, 8, 4, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  const primaryColor = player.gender === 'male' ? '#60a5fa' : '#f472b6';
+
+  // Space Suit Base
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1.5;
+
+  // Oxygen Pack (Backpack)
+  ctx.fillStyle = '#cbd5e1';
+  ctx.beginPath();
+  ctx.roundRect(-7, -4, 14, 10, 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Helmet/Body
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.roundRect(-6, -10, 12, 16, 4);
+  ctx.fill();
+  ctx.stroke();
+
+  // Visor
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.roundRect(-4.5, -8, 9, 4, 1.5);
+  ctx.fill();
+
+  // Visor Shine
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.fillRect(-3, -7.5, 2, 0.5);
+
+  // Arm accent
+  ctx.fillStyle = primaryColor;
+  ctx.fillRect(-6, 0, 2, 4);
+  ctx.fillRect(4, 0, 2, 4);
+
+  ctx.restore();
 
   // Attack visual
   if (engine.inputs.space) {

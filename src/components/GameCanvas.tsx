@@ -195,12 +195,32 @@ export default function GameCanvas() {
                             </div>
                         </div>
 
-                        <button 
-                            onClick={startGame}
-                            className="w-full py-5 bg-white text-black font-black uppercase tracking-[0.3em] text-xs h-14 rounded-xl hover:bg-blue-400 hover:text-white transition-all transform active:scale-95 shadow-lg shadow-white/5"
-                        >
-                            Initialize Adventure
-                        </button>
+                        <div className="grid grid-cols-2 gap-4">
+                            <button 
+                                onClick={startGame}
+                                className="w-full py-5 bg-white text-black font-black uppercase tracking-[0.3em] text-xs h-14 rounded-xl hover:bg-blue-400 hover:text-white transition-all transform active:scale-95 shadow-lg shadow-white/5"
+                            >
+                                New Journey
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    if (engine.loadGame()) {
+                                        // Update UI state with loaded data
+                                        setUiState(prev => ({
+                                            ...prev,
+                                            gameState: GameState.PLAYING,
+                                            playerName: engine.entities.player.name,
+                                            level: engine.entities.player.level
+                                        }));
+                                    } else {
+                                        alert("No save data found.");
+                                    }
+                                }}
+                                className="w-full py-5 bg-white/5 border border-white/10 text-white font-black uppercase tracking-[0.3em] text-xs h-14 rounded-xl hover:bg-white/10 transition-all transform active:scale-95 shadow-lg"
+                            >
+                                Continue
+                            </button>
+                        </div>
                     </div>
                 </div>
             </motion.div>
