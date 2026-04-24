@@ -22,6 +22,7 @@ export default function GameCanvas() {
     level: 1,
     exp: 0,
     maxExp: 100,
+    playerName: 'Explorer',
     showLeft: true,
     showRight: true
   });
@@ -67,7 +68,8 @@ export default function GameCanvas() {
               log: [...engine.actionLog],
               level: engine.entities.player.level,
               exp: engine.entities.player.experience,
-              maxExp: engine.entities.player.maxExperience
+              maxExp: engine.entities.player.maxExperience,
+              playerName: engine.entities.player.name
           }));
       }
 
@@ -110,14 +112,101 @@ export default function GameCanvas() {
       return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
   };
 
+  const [charData, setCharData] = useState({ name: 'Vane', gender: 'male' as const });
+
+  const startGame = () => {
+      engine.entities.player.name = charData.name.trim() || 'Explorer';
+      engine.entities.player.gender = charData.gender;
+      engine.state = GameState.PLAYING;
+      engine.log(`Welcome, ${engine.entities.player.name}. The stars await.`);
+  };
+
   return (
     <div className={`grid h-screen w-full bg-bg-main text-white font-sans overflow-hidden transition-all duration-300 ${
-        uiState.showLeft && uiState.showRight ? 'grid-cols-[260px_1fr_260px]' : 
-        uiState.showLeft ? 'grid-cols-[260px_1fr_0px]' :
-        uiState.showRight ? 'grid-cols-[0px_1fr_260px]' : 
-        'grid-cols-[0px_1fr_0px]'
+        uiState.gameState === GameState.TITLE ? 'grid-cols-1' : (
+            uiState.showLeft && uiState.showRight ? 'grid-cols-[260px_1fr_260px]' : 
+            uiState.showLeft ? 'grid-cols-[260px_1fr_0px]' :
+            uiState.showRight ? 'grid-cols-[0px_1fr_260px]' : 
+            'grid-cols-[0px_1fr_0px]'
+        )
     } grid-rows-[60px_1fr_180px]`}>
       
+      {/* Title / Character Creation Overlay */}
+      <AnimatePresence>
+        {uiState.gameState === GameState.TITLE && (
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[100] bg-bg-main flex items-center justify-center overflow-hidden"
+            >
+                {/* Background Starfield Effect */}
+                <div className="absolute inset-0 opacity-20 pointer-events-none">
+                    {[...Array(50)].map((_, i) => (
+                        <div 
+                            key={i} 
+                            className="absolute bg-white rounded-full animate-pulse" 
+                            style={{ 
+                                left: `${Math.random() * 100}%`, 
+                                top: `${Math.random() * 100}%`, 
+                                width: Math.random() * 2 + 'px', 
+                                height: Math.random() * 2 + 'px',
+                                animationDelay: `${Math.random() * 5}s`
+                            }} 
+                        />
+                    ))}
+                </div>
+
+                <div className="relative z-10 w-full max-w-lg p-12 bg-bg-panel border border-border-subtle rounded-3xl shadow-2xl backdrop-blur-xl">
+                    <div className="text-center mb-12">
+                        <div className="text-[10px] uppercase tracking-[0.4em] text-blue-400 font-black mb-4">Project: Astra</div>
+                        <h1 className="text-5xl font-light tracking-tighter mb-2 italic">ASTRAL FRONTIER</h1>
+                        <p className="text-xs text-label uppercase tracking-widest">Construct. Survive. Transcend.</p>
+                    </div>
+
+                    <div className="space-y-8">
+                        <div>
+                            <label className="text-[10px] uppercase tracking-[0.2em] text-label font-bold mb-3 block">Explorer Designation</label>
+                            <input 
+                                type="text" 
+                                value={charData.name}
+                                onChange={(e) => setCharData(p => ({ ...p, name: e.target.value }))}
+                                className="w-full bg-white/5 border border-border-subtle p-4 rounded-xl focus:outline-none focus:border-blue-500/50 transition-all font-mono text-sm tracking-widest"
+                                placeholder="ENTER NAME..."
+                                maxLength={16}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-[10px] uppercase tracking-[0.2em] text-label font-bold mb-3 block">Genetic Template</label>
+                            <div className="grid grid-cols-2 gap-4">
+                                <button 
+                                    onClick={() => setCharData(p => ({ ...p, gender: 'male' }))}
+                                    className={`p-4 rounded-xl border transition-all text-sm tracking-widest uppercase font-bold flex items-center justify-center gap-2 ${charData.gender === 'male' ? 'bg-blue-500/10 border-blue-500 text-blue-400' : 'bg-white/5 border-border-subtle text-white/40'}`}
+                                >
+                                    <Users size={16} /> Male
+                                </button>
+                                <button 
+                                    onClick={() => setCharData(p => ({ ...p, gender: 'female' }))}
+                                    className={`p-4 rounded-xl border transition-all text-sm tracking-widest uppercase font-bold flex items-center justify-center gap-2 ${charData.gender === 'female' ? 'bg-pink-500/10 border-pink-500 text-pink-400' : 'bg-white/5 border-border-subtle text-white/40'}`}
+                                >
+                                    <Users size={16} /> Female
+                                </button>
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={startGame}
+                            className="w-full py-5 bg-white text-black font-black uppercase tracking-[0.3em] text-xs h-14 rounded-xl hover:bg-blue-400 hover:text-white transition-all transform active:scale-95 shadow-lg shadow-white/5"
+                        >
+                            Initialize Adventure
+                        </button>
+                    </div>
+                </div>
+            </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Top HUD */}
       <header className="col-span-3 bg-bg-header/80 backdrop-blur-md border-b border-border-subtle flex items-center px-6 justify-between z-10">
           <div className="flex items-center gap-4 text-sm">
@@ -258,8 +347,8 @@ export default function GameCanvas() {
       <aside className={`border-l border-border-subtle p-5 bg-bg-panel flex flex-col gap-8 row-span-2 overflow-y-auto transition-all ${!uiState.showRight ? 'opacity-0 pointer-events-none' : ''}`}>
           <div>
               <div className="text-[10px] uppercase tracking-[0.2em] text-label font-bold mb-4">Character</div>
-              <div className="text-lg font-light mb-1">Explorer Vane</div>
-              <div className="text-xs text-label mb-6">Wayfarer Grade 1</div>
+              <div className="text-lg font-light mb-1">{uiState.playerName}</div>
+              <div className="text-xs text-label mb-6 uppercase tracking-widest">{engine.entities.player.gender} · Level {uiState.level}</div>
               
               <div className="text-[10px] uppercase tracking-[0.2em] text-label font-bold mb-4">Equipment</div>
               <div className="grid grid-cols-2 gap-2">
